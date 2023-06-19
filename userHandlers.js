@@ -55,6 +55,26 @@ const getUserById = (req, res) => {
     });
 };
 
+const getUserByEmailWithPasswordAndPassToNext = (req, res, next) => {
+  const { email } = req.body;
+
+  database
+    .query("SELECT * FROM users WHERE email = ?", [email])
+    .then(([users]) => {
+      if(users[0] != null) {
+        req.user = users[0];
+        next();
+      } else {
+        console.warn(users)
+        res.sendStatus(401);
+      }
+      
+    })
+    .catch((err) => {
+      res.status(500).send("Error retrieving data from database")
+    });
+}
+
 const postUser = (req, res) => {
   const { firstname, lastname, email, city, language, hashedPassword } =
     req.body;
@@ -119,4 +139,5 @@ module.exports = {
   postUser,
   updateUser,
   deleteUser,
+  getUserByEmailWithPasswordAndPassToNext
 };
